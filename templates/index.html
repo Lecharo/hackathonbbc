@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locales en Arriendo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .dashboard {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .dashboard-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Locales en Arriendo</h1>
+        
+        <!-- Dashboard -->
+        <div class="dashboard mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Top 5 Localidades</h5>
+                            <ul class="list-group">
+                                {% for localidad, count in dashboard_data.top_localidades %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ localidad|capitalize if localidad else 'No especificado' }}
+                                    <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Top 5 Barrios</h5>
+                            <ul class="list-group">
+                                {% for barrio, count in dashboard_data.top_barrios %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ barrio|capitalize if barrio else 'No especificado' }}
+                                    <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Total Locales</h5>
+                                    <p class="card-text">{{ dashboard_data.total_locales }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Precio Promedio</h5>
+                                    <p class="card-text">${{ "%.2f"|format(dashboard_data.precio_promedio|float) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Metros² Promedio</h5>
+                                    <p class="card-text">{{ "%.2f"|format(dashboard_data.metros_promedio|float) }} m²</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Baños Promedio</h5>
+                                    <p class="card-text">{{ "%.1f"|format(dashboard_data.banos_promedio|float) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de filtro -->
+        <form method="POST" class="mb-4">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col-md-2">
+                    {{ form.precio_min.label(class="form-label") }}
+                    {{ form.precio_min(class="form-control") }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.precio_max.label(class="form-label") }}
+                    {{ form.precio_max(class="form-control") }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.ubicacion.label(class="form-label") }}
+                    {{ form.ubicacion(class="form-control") }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.ciudad.label(class="form-label") }}
+                    {{ form.ciudad(class="form-control") }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.localidad.label(class="form-label") }}
+                    {{ form.localidad(class="form-control") }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.barrio.label(class="form-label") }}
+                    {{ form.barrio(class="form-control") }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.metros_min.label(class="form-label") }}
+                    {{ form.metros_min(class="form-control") }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.banos_min.label(class="form-label") }}
+                    {{ form.banos_min(class="form-control") }}
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </div>
+        </form>
+
+        <!-- Lista de locales -->
+        <div class="row">
+            {% for local in locales.items %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{{ local.imagen_url }}" class="card-img-top" alt="{{ local.titulo }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ local.titulo }}</h5>
+                        <p class="card-text">Precio: ${{ local.precio }}</p>
+                        <p class="card-text">Ubicación: {{ local.ubicacion }}</p>
+                        <p class="card-text">Ciudad: {{ local.ciudad }}</p>
+                        <p class="card-text">Localidad: {{ local.localidad }}</p>
+                        <p class="card-text">Barrio: {{ local.barrio }}</p>
+                        <p class="card-text">Metros cuadrados: {{ local.metros_cuadrados }}</p>
+                        <p class="card-text">Baños: {{ local.cantidad_banos }}</p>
+                        <p class="card-text">Fuente: {{ local.fuente }}</p>
+                        <a href="{{ local.link }}" class="btn btn-primary" target="_blank">Ver en {{ local.fuente }}</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginación existente -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% for page in locales.iter_pages() %}
+                    {% if page %}
+                        <li class="page-item {{ 'active' if page == locales.page else '' }}">
+                            <a class="page-link" href="{{ url_for('index', page=page, precio_min=form.precio_min.data, precio_max=form.precio_max.data, ubicacion=form.ubicacion.data, ciudad=form.ciudad.data, localidad=form.localidad.data, barrio=form.barrio.data, metros_min=form.metros_min.data, banos_min=form.banos_min.data) }}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
